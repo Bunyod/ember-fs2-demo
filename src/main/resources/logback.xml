@@ -1,0 +1,12 @@
+<configuration debug="true" scan="true" scanPeriod="60 seconds">
+    <appender name="METRICS" class="io.prometheus.client.logback.InstrumentedAppender" />
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="json" />
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="ASYNC" />
+        <appender-ref ref="METRICS" />
+    </root>
+</configuration>
+
