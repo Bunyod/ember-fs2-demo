@@ -19,22 +19,22 @@ import scala.io.Source
 
 class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEach with Eventually {
   private lazy val config = HttpConfig(host = "0.0.0.0", port = 9009)
-  def logMemory() = {
+  def logMemory(): Unit = {
     import java.lang.management.{BufferPoolMXBean, ManagementFactory}
     import scala.jdk.CollectionConverters._
     val pools: List[BufferPoolMXBean] = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.toList
     pools.foreach { pool =>
       System.out.println(String.format(
         "%s %d/%d",
-        pool.getName(),
-        pool.getMemoryUsed(),
-        pool.getTotalCapacity()));
+        pool.getName,
+        pool.getMemoryUsed,
+        pool.getTotalCapacity));
     }
   }
   private lazy val signal = SignallingRef[IO, Boolean](false).unsafeRunSync()
   @volatile private var _mainObj = Option.empty[Main]
   @volatile private var exit: Either[Throwable, ExitCode] = Right(ExitCode.Error)
-  lazy val mainObj = {
+  lazy val mainObj: Main = {
     val x = new Main(config)
     _mainObj = Some(x)
     x.run().unsafeRunAsync { x =>
