@@ -10,9 +10,6 @@ import org.http4s.metrics.prometheus.{Prometheus, PrometheusExportService}
 import org.http4s.server.middleware.Metrics
 
 class Main() {
-  val host = host"0.0.0.0"
-  val port = port"5000"
-
   private val routes: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "ping" => Ok("pong") }
 
   def run(): IO[ExitCode] = {
@@ -23,8 +20,8 @@ class Main() {
         httpApp = Metrics[IO](metrics)(routes <+> metricsSvc.routes).orNotFound
         server <- EmberServerBuilder
           .default[IO]
-          .withHost(host)
-          .withPort(port)
+          .withHost(host"0.0.0.0")
+          .withPort(port"5000")
           .withHttpApp(httpApp)
           .build
       } yield server
