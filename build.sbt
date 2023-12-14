@@ -1,13 +1,8 @@
-
-ThisBuild / scalaVersion := "2.13.8"
-Global / onChangedBuildSource := ReloadOnSourceChanges
-
 lazy val root = (project in file("."))
   .settings(
     name := "ember-fs2-demo",
+    scalaVersion := "2.13.8",
     Defaults.itSettings,
-    IntegrationTest / testForkedParallel := false,
-    scalacOptions ++= CompilerOptions.scalac213Options,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.9.0",
       "org.typelevel" %% "cats-effect" % "3.5.2",
