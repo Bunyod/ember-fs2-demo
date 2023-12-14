@@ -1,37 +1,40 @@
 package com.ember.fs2.demo
 
 import cats.effect._
+import cats.implicits._
+import com.comcast.ip4s.IpLiteralSyntax
+import org.http4s.dsl.io._
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.HttpRoutes
 import org.http4s.metrics.prometheus.{Prometheus, PrometheusExportService}
-import org.slf4j.LoggerFactory
+import org.http4s.server.middleware.Metrics
 
-class Main(config: HttpConfig) {
-  private val adminConfig = HttpConfig("0.0.0.0", 5004)
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class Main() {
+  val host = host"0.0.0.0"
+  val port = port"5000"
+
+  private val routes: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "ping" => Ok("pong") }
 
   def run(): IO[ExitCode] = {
-    logger.info("Starting test")
     (
       for {
         metricsSvc <- PrometheusExportService.build[IO]
         metrics <- Prometheus.metricsOps[IO](metricsSvc.collectorRegistry, "demo_app_public")
-        adminServer <- MkHttpServer[IO].newEmber(
-          adminConfig,
-          new AdminHttpServer(metricsSvc).httpApp(() => false)
-        )
-        publicServer <- MkHttpServer[IO].newEmber(config, new PublicHttpServer(metrics).httpApp)
-      } yield (adminServer, publicServer)
-      ).useForever
+        httpApp = Metrics[IO](metrics)(routes <+> metricsSvc.routes).orNotFound
+        server <- EmberServerBuilder
+          .default[IO]
+          .withHost(host)
+          .withPort(port)
+          .withHttpApp(httpApp)
+          .build
+      } yield server
+    ).useForever
   }
+
 }
 
 object Main extends IOApp {
-
-  java.security.Security.setProperty("networkaddress.cache.ttl", "60")
-
-  private val config = HttpConfig("0.0.0.0", 5000)
-  private val mainObj = new Main(config)
-
   override def run(args: List[String]): IO[ExitCode] = {
-    mainObj.run()
+    new Main().run()
   }
 }

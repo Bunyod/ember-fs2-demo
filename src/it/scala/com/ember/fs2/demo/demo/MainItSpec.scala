@@ -2,7 +2,6 @@ package com.ember.fs2.demo.demo
 
 import cats.effect.{ExitCode, IO}
 import cats.effect.unsafe.implicits.global
-import com.ember.fs2.demo.HttpConfig
 import com.ember.fs2.demo.Main
 import fs2.concurrent.SignallingRef
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
@@ -18,7 +17,6 @@ import scala.concurrent.duration.DurationInt
 import scala.io.Source
 
 class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEach with Eventually {
-  private lazy val config = HttpConfig(host = "0.0.0.0", port = 9009)
   def logMemory(): Unit = {
     import java.lang.management.{BufferPoolMXBean, ManagementFactory}
     import scala.jdk.CollectionConverters._
@@ -35,13 +33,13 @@ class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEa
   @volatile private var _mainObj = Option.empty[Main]
   @volatile private var exit: Either[Throwable, ExitCode] = Right(ExitCode.Error)
   lazy val mainObj: Main = {
-    val x = new Main(config)
+    val x = new Main()
     _mainObj = Some(x)
     x.run().unsafeRunAsync { x =>
       x.swap.foreach(_.printStackTrace())
       exit = x
     }
-    liveness() // ensure that server is up
+    ping() // ensure that server is up
     x
   }
 
@@ -74,19 +72,19 @@ class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEa
     }
   }
 
-  private def liveness(): Unit = {
+  private def ping(): Unit = {
     eventually(Timeout(10.seconds)) {
-      getRequest(s"http://localhost:5004/liveness")
+      getRequest(s"http://localhost:5000/ping")
     }
     ()
   }
 
-  it("/liveness") {
-    liveness()
+  it("/ping") {
+    ping()
   }
 
   it("/metrics") {
-    val metrics = getRequest(s"http://localhost:5004/metrics")
+    val metrics = getRequest(s"http://localhost:5000/metrics")
     metrics must not be empty
   }
 
@@ -96,7 +94,7 @@ class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEa
     implicit def context: ExecutionContextExecutor = ec
     val result = Future.sequence((0 until 10000).map { _ =>
       Future{
-        getRequest(s"http://localhost:5004/liveness")
+        getRequest(s"http://localhost:5000/ping")
         logMemory()
       }
     })
