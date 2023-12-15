@@ -13,7 +13,7 @@ object EmberTestEndpoint extends App {
 
   implicit def context: ExecutionContextExecutor = ec
 
-  val result = Future.sequence((0 until 10000).map { _ =>
+  val result = Future.sequence((0 until 100000).map { _ =>
     Future {
       getRequest(s"http://localhost:5000/ping")
       logMemory()
@@ -21,7 +21,8 @@ object EmberTestEndpoint extends App {
   })
   Await.result(result, 20.seconds)
   pool.shutdown()
-
+  println("finished")
+  System.exit(1)
 
   private def getRequest(url: String): String = {
       val connection = new URL(url)
@@ -35,14 +36,16 @@ object EmberTestEndpoint extends App {
 
   def logMemory(): Unit = {
     import java.lang.management.{BufferPoolMXBean, ManagementFactory}
-    import scala.jdk.CollectionConverters._
+    import scala.collection.JavaConverters._
     val pools: List[BufferPoolMXBean] = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.toList
     pools.foreach { pool =>
-      System.out.println(String.format(
-        "%s %d/%d",
+      println(
+        "%s %d/%d".format(
         pool.getName,
-        pool.getMemoryUsed,
-        pool.getTotalCapacity));
+        pool.getMemoryUsed.doubleValue().toLong,
+        pool.getTotalCapacity.doubleValue().toLong
+        )
+      )
     }
   }
 }

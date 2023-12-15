@@ -22,18 +22,20 @@ class EmberMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
     import scala.jdk.CollectionConverters._
     val pools: List[BufferPoolMXBean] = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.toList
     pools.foreach { pool =>
-      System.out.println(String.format(
-        "%s %d/%d",
-        pool.getName,
-        pool.getMemoryUsed,
-        pool.getTotalCapacity));
+      println(
+        "%s %d/%d".format(
+          pool.getName,
+          pool.getMemoryUsed.doubleValue().toLong,
+          pool.getTotalCapacity.doubleValue().toLong
+        )
+      )
     }
   }
   private lazy val signal = SignallingRef[IO, Boolean](false).unsafeRunSync()
   @volatile private var _mainObj = Option.empty[EmberMain]
   @volatile private var exit: Either[Throwable, ExitCode] = Right(ExitCode.Error)
   lazy val mainObj: EmberMain = {
-    val x = new EmberMain()
+    val x = new EmberMain(9000)
     _mainObj = Some(x)
     x.run().unsafeRunAsync { x =>
       x.swap.foreach(_.printStackTrace())
@@ -74,7 +76,7 @@ class EmberMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
 
   private def ping(): Unit = {
     eventually(Timeout(10.seconds)) {
-      getRequest(s"http://localhost:5000/ping")
+      getRequest(s"http://localhost:9000/ping")
     }
     ()
   }
@@ -84,7 +86,7 @@ class EmberMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
   }
 
   it("/metrics") {
-    val metrics = getRequest(s"http://localhost:5000/metrics")
+    val metrics = getRequest(s"http://localhost:9000/metrics")
     metrics must not be empty
   }
 
@@ -94,7 +96,7 @@ class EmberMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
     implicit def context: ExecutionContextExecutor = ec
     val result = Future.sequence((0 until 10000).map { _ =>
       Future{
-        getRequest(s"http://localhost:5000/ping")
+        getRequest(s"http://localhost:9000/ping")
         logMemory()
       }
     })

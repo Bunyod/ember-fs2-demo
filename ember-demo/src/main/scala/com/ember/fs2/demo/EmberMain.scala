@@ -2,14 +2,14 @@ package com.ember.fs2.demo
 
 import cats.effect._
 import cats.implicits._
-import com.comcast.ip4s.IpLiteralSyntax
+import com.comcast.ip4s.{IpLiteralSyntax, Port}
 import org.http4s.dsl.io._
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.HttpRoutes
 import org.http4s.metrics.prometheus.{Prometheus, PrometheusExportService}
 import org.http4s.server.middleware.Metrics
 
-class EmberMain {
+class EmberMain(port: Int) {
   private val routes: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "ping" => Ok("pong") }
 
   def run(): IO[ExitCode] = {
@@ -21,7 +21,7 @@ class EmberMain {
         server <- EmberServerBuilder
           .default[IO]
           .withHost(host"0.0.0.0")
-          .withPort(port"5000")
+          .withPort(Port.fromInt(port).getOrElse(port"5000"))
           .withHttpApp(httpApp)
           .build
       } yield server
@@ -32,6 +32,6 @@ class EmberMain {
 
 object EmberMain extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
-    new EmberMain().run()
+    new EmberMain(5000).run()
   }
 }

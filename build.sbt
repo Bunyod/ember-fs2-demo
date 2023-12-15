@@ -1,4 +1,5 @@
-scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "2.13.8"
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val `ember-demo` = (project in file("ember-demo"))
   .settings(
@@ -39,4 +40,5 @@ lazy val `blaze-demo` = (project in file("blaze-demo"))
 lazy val root = (project in file("."))
   .settings(
     name := "ember-fs2-demo",
+    scalacOptions ++= CompilerOptions.cOptions
   ).aggregate(`ember-demo`, `blaze-demo`)
