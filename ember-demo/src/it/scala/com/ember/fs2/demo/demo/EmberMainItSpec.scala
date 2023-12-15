@@ -98,6 +98,7 @@ class EmberMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
       Future{
         getRequest(s"http://localhost:9000/ping")
         logMemory()
+        System.gc()
       }
     })
     Await.result(result, 20.seconds)

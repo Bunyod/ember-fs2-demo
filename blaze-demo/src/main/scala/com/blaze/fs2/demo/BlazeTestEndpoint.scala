@@ -18,7 +18,7 @@ object BlazeTestEndpoint extends App {
       getRequest(s"http://localhost:6000/ping")
     }
   })
-  Await.result(result, 20.seconds)
+  Await.result(result, 60.seconds)
   pool.shutdown()
   println("finished")
   System.exit(1)

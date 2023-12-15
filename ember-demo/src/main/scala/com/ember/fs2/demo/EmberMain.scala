@@ -33,7 +33,7 @@ class EmberMain(port: Int) {
 
   def logMemory(): Unit = {
     import java.lang.management.{BufferPoolMXBean, ManagementFactory}
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val pools: List[BufferPoolMXBean] = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.toList
     pools.foreach { pool =>
       println(
