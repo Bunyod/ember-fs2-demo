@@ -10,7 +10,10 @@ import org.http4s.metrics.prometheus.{Prometheus, PrometheusExportService}
 import org.http4s.server.middleware.Metrics
 
 class EmberMain(port: Int) {
-  private val routes: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "ping" => Ok("pong") }
+  private val routes: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "ping" =>
+    logMemory()
+    Ok("pong")
+  }
 
   def run(): IO[ExitCode] = {
     (
@@ -28,6 +31,20 @@ class EmberMain(port: Int) {
     ).useForever
   }
 
+  def logMemory(): Unit = {
+    import java.lang.management.{BufferPoolMXBean, ManagementFactory}
+    import scala.collection.JavaConverters._
+    val pools: List[BufferPoolMXBean] = ManagementFactory.getPlatformMXBeans(classOf[BufferPoolMXBean]).asScala.toList
+    pools.foreach { pool =>
+      println(
+        "%s %d/%d".format(
+          pool.getName,
+          pool.getMemoryUsed.doubleValue().toLong,
+          pool.getTotalCapacity.doubleValue().toLong
+        )
+      )
+    }
+  }
 }
 
 object EmberMain extends IOApp {

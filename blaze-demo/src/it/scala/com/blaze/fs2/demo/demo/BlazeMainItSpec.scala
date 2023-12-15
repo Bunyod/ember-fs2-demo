@@ -76,7 +76,7 @@ class BlazeMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
 
   private def ping(): Unit = {
     eventually(Timeout(10.seconds)) {
-      getRequest(s"http://localhost:7000/ping")
+      getRequest(s"http://localhost:8000/ping")
     }
     ()
   }
@@ -86,7 +86,7 @@ class BlazeMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
   }
 
   it("/metrics") {
-    val metrics = getRequest(s"http://localhost:7000/metrics")
+    val metrics = getRequest(s"http://localhost:8000/metrics")
     metrics must not be empty
   }
 
@@ -96,7 +96,7 @@ class BlazeMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAf
     implicit def context: ExecutionContextExecutor = ec
     val result = Future.sequence((0 until 10000).map { _ =>
       Future{
-        getRequest(s"http://localhost:7000/ping")
+        getRequest(s"http://localhost:8000/ping")
         logMemory()
       }
     })
