@@ -1,0 +1,12 @@
+# ------------------------------------------------ #
+#  The SBT Configuration file.                     #
+# ------------------------------------------------ #
+
+# Java memory and GC settings
+-XX:NativeMemoryTracking=summary
+-Xms300m
+-Xmx300m
+-XX:+UseSerialGC
+
+-Dsbt.color=always
+-Dsbt.supershell=false

@@ -1,8 +1,8 @@
-package com.ember.fs2.demo.demo
+package com.blaze.fs2.demo.demo
 
 import cats.effect.{ExitCode, IO}
 import cats.effect.unsafe.implicits.global
-import com.ember.fs2.demo.Main
+import com.blaze.fs2.demo.BlazeMain
 import fs2.concurrent.SignallingRef
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.concurrent.Eventually
@@ -16,7 +16,7 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Futu
 import scala.concurrent.duration.DurationInt
 import scala.io.Source
 
-class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEach with Eventually {
+class BlazeMainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEach with Eventually {
   def logMemory(): Unit = {
     import java.lang.management.{BufferPoolMXBean, ManagementFactory}
     import scala.jdk.CollectionConverters._
@@ -30,10 +30,10 @@ class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEa
     }
   }
   private lazy val signal = SignallingRef[IO, Boolean](false).unsafeRunSync()
-  @volatile private var _mainObj = Option.empty[Main]
+  @volatile private var _mainObj = Option.empty[BlazeMain]
   @volatile private var exit: Either[Throwable, ExitCode] = Right(ExitCode.Error)
-  lazy val mainObj: Main = {
-    val x = new Main()
+  lazy val mainObj: BlazeMain = {
+    val x = new BlazeMain()
     _mainObj = Some(x)
     x.run().unsafeRunAsync { x =>
       x.swap.foreach(_.printStackTrace())
@@ -100,7 +100,6 @@ class MainItSpec extends AnyFunSpec with BeforeAndAfterAll with BeforeAndAfterEa
     })
     Await.result(result, 20.seconds)
     pool.shutdown()
-
   }
 }
 
