@@ -15,7 +15,7 @@ object EmberTestEndpoint extends App {
   println("starting ember server test")
   val result = Future.sequence((0 until 1000000).map { _ =>
     Future {
-      getRequest(s"http://localhost:5000/ping")
+      getRequest("http://localhost:5000/ping")
     }
   })
 

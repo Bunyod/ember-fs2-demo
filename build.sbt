@@ -12,6 +12,7 @@ lazy val `ember-demo` = (project in file("ember-demo"))
       "co.fs2" %% "fs2-io" % "3.9.3",
       "org.http4s" %% "http4s-dsl" % "0.23.24",
       "org.http4s" %% "http4s-ember-server" % "0.23.24",
+      "org.http4s" %% "http4s-ember-client" % "0.23.24",
       "org.http4s" %% "http4s-circe" % "0.23.24",
       "org.http4s" %% "http4s-prometheus-metrics" % "0.24.3",
       "org.scalatest" %% "scalatest" % "3.2.17" % "it,test"
