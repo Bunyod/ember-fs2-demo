@@ -6,11 +6,11 @@ import org.http4s.ember.client.EmberClientBuilder
 
 object EmberTestEndpointIO extends IOApp {
 
-  val run: IO[List[String]] = EmberClientBuilder
+  def run: IO[List[String]] = EmberClientBuilder
     .default[IO]
     .build
     .use { client =>
-      (0 until 1000000).toList.parTraverse(_ =>
+      (0 until 10000).toList.parTraverse(_ =>
         client
           .expect[String]("http://localhost:5000/ping")
       )
